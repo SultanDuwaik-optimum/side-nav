@@ -1,0 +1,24 @@
+<mat-drawer-container class="example-container" autosize>
+    <mat-drawer #drawer class="example-sidenav opened" mode="side" opened="true">
+
+        <div class="side-nav-items">
+            <ul>
+                <li [ngClass]=" {'expanded': isExpanded}"><img src="assets/icons/{{items[0].icon}}.svg" alt=""><span><ng-container *ngIf="isExpanded">{{items[0].label}}</ng-container></span></li>
+                <li [ngClass]=" {'expanded': isExpanded}"><img src="assets/icons/{{items[1].icon}}.svg" alt=""><span><ng-container *ngIf="isExpanded">{{items[0].label}}</ng-container></span></li>
+                <li [ngClass]=" {'expanded': isExpanded}"><img src="assets/icons/{{items[2].icon}}.svg" alt=""><span><ng-container *ngIf="isExpanded">{{items[0].label}}</ng-container></span></li>
+                <li [ngClass]=" {'expanded': isExpanded}"><img src="assets/icons/{{items[3].icon}}.svg" alt=""><span><ng-container *ngIf="isExpanded">{{items[0].label}}</ng-container></span></li>
+                <li [ngClass]=" {'expanded': isExpanded}"><img src="assets/icons/{{items[4].icon}}.svg" alt=""><span><ng-container *ngIf="isExpanded">{{items[0].label}}</ng-container></span></li>
+                <li [ngClass]=" {'expanded': isExpanded}"><img src="assets/icons/{{items[5].icon}}.svg" alt=""><span><ng-container *ngIf="isExpanded">{{items[0].label}}</ng-container></span></li>
+            </ul>
+        </div>
+        <ng-container *ngIf="isExpanded">{{items[0].label}}</ng-container>
+
+    </mat-drawer>
+  
+    <div class="example-sidenav-content">
+      <button type="button" mat-button (click)="toggleSidenav()">
+        Toggle sidenav
+      </button>
+    </div>
+  
+  </mat-drawer-container>
