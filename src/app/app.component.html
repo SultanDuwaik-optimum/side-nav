@@ -1,5 +1,5 @@
 <app-header (openDrawer)="handleOpenDrawer($event)"></app-header>
 
-<app-sidenav [isSideNavOpen]="isDrawerOpen" >
+<app-sidenav [isOpen]="isDrawerOpen" [navItems]="navItems">
     <router-outlet/>
 </app-sidenav>

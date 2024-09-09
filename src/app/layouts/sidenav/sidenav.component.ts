@@ -1,15 +1,9 @@
-import { Component, Input } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
+import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { MatButtonModule }  from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-
-interface NavItem{
-  icon: string;
-  label: string;
-  route?:string;
-  isSelected?:boolean;
-}
+import { CommonModule }     from '@angular/common';
+import { Router }           from '@angular/router';
+import { NavItem }          from './types';
 
 @Component({
   selector: 'app-sidenav',
@@ -17,41 +11,33 @@ interface NavItem{
   imports: [
     MatSidenavModule,
     CommonModule,
-    MatButtonModule
+    MatButtonModule,
   ],
   templateUrl: './sidenav.component.html',
   styleUrl: './sidenav.component.scss'
 })
 
-export class SidenavComponent {
+export class SidenavComponent{
 
-  @Input() isSideNavOpen!: boolean;
+  @Input() isOpen!       : boolean;
+  @Input() expandedWidth : string = "250px";
+  @Input() iconSize      : string = "27px";
+  @Input() navItems      : NavItem[] = [];
+  @Input() hoverColor    : string = "#81D0A6";
+  @Input() fontColor     : string = "#FFFFFF";
+  @Input() drawerColor   : string = '#000000';
+  @Input() drawerHeight  : string = '100vh';
 
-  navItems: NavItem[] = [
-    { icon: "dashboard",   label: "Dashboard",       route: 'dashboard',       isSelected: false},
-    { icon: "rules",       label: "Rules Engine",    route: 'rules-engine',    isSelected: false},
-    { icon: "account",     label: "Accounts",        route: 'accounts',        isSelected: false},
-    { icon: "dollar-sign", label: "Billing",         route: 'billing',         isSelected: false},
-    { icon: "management",  label: "User Management", route: 'user-management', isSelected: true },
-    { icon: "settings",    label: "Settings",        route: 'settings',        isSelected: false},
-    { icon: "settings",    label: "Settings",        route: 'settings',        isSelected: false},
-    { icon: "settings",    label: "Settings",        route: 'settings',        isSelected: false}
-  ];
+  public hoveredIndex: number | null = null;
 
   constructor(private router: Router){}
 
   toggleSidenav(): void {
-    this.isSideNavOpen = !this.isSideNavOpen;
+    this.isOpen = !this.isOpen;
   }
 
-  getSidenavContentStyle(){
-    return {
-      'margin-left': this.isSideNavOpen ? '215px' : '65px',
-    };
-  }
-
-  navigateToRoute(navItem: NavItem) : void{
-    if(navItem.isSelected == true){
+  navigateTo(navItem: NavItem):void {
+    if(navItem.isSelected || navItem.isSelected === undefined){
       return;
     }
 
@@ -65,5 +51,64 @@ export class SidenavComponent {
     navItem.isSelected = true;
     this.router.navigate([navItem.route]);
   }
+
+  onListItemEnter(index: number):void{
+    this.hoveredIndex = index;
+  }
+
+  onListItemLeave():void{
+    this.hoveredIndex = null;
+  }
+
+
+  
+  sidenavContentStyle(){
+    return {
+      'margin-left': this.isOpen ? this.expandedWidth :  `calc(${this.iconSize} + 40px)` ,
+    };
+  }
+
+  drawerContainerStyle(){
+    return {
+      'height' : this.drawerHeight
+    }
+  }
+
+  drawerStyle() {
+    const width = this.isOpen ? this.expandedWidth :  `calc(${this.iconSize} + 40px)`;
+    return {
+      'width': width,
+      'background-color': this.drawerColor 
+    }
+  }
+
+  listStyle(){
+    const percentage = this.navItems.length > 8 ? 80 + '%' : ((this.navItems.length - 1) * 10) + '%';
+    
+    console.log(percentage);
+    return{
+      'height' : percentage
+    }
+  }
+
+  iconStyle(index: number) {
+    const backgroundColor = 
+    (this.navItems[index].isSelected || this.hoveredIndex === index) ? this.hoverColor : this.fontColor;
+
+    return {
+      'background-color': backgroundColor,
+      'mask-image': `url(assets/icons/${this.navItems[index].icon}.svg)`,
+      'height'    : this.iconSize,
+      'width'     : this.iconSize,
+    };
+  }
+
+  labelStyle(index: number) {
+    const isHighlighted = this.hoveredIndex === index || this.navItems[index].isSelected;
+    return {
+      'color': isHighlighted ? this.hoverColor : this.fontColor,
+    };
+  }
+
   
 }

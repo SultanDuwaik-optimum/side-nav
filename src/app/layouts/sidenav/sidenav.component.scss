@@ -4,40 +4,23 @@
   }
  
   mat-drawer{
-    background-color: black;
     border-radius: 0;
-    width: auto;
+    padding: 10px;
+    transition: width 0.4s ease
+
   }
 
   mat-drawer-content{
     transition: margin-left 0.4s ease;
   }
 
-  .container {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-  }
-  
-  .sidenav {
-    padding: 10px;
-    visibility: visible !important;
-  }
-
-  .side-nav-items{
-    height: 50%;
-  }
-
   ul{
     list-style: none;
     padding: 0;
-    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    overflow: hidden;
   }
-
 
   li{
     display: flex;
@@ -45,33 +28,14 @@
     cursor: pointer;
   }
 
-  li:hover > span {   
-    color: #81D0A6 !important;
-  }
-
-  li img{
-    height: 24px;
-    width: 24px;
-    margin: 0 10px;
-  }
-
-  .expanded{
-    span{
-      width: 150px;
-      transition: width 0.4s ease;
-    }
-  }
-
   li span{
-    color: white;
     font-size: 16px;
-    width: 0;
-    white-space: nowrap;
-    transition: width 0.4s ease;
+    white-space: nowrap;  
   }
 
-  .selected{
-    span{
-      color: #81D0A6;
-    }
+  .icon {
+    margin: 0 10px;
+    flex: 0 0 auto;
+    mask-size: contain;
+    mask-repeat: no-repeat;
   }
