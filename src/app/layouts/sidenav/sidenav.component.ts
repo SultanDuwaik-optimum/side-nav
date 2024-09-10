@@ -32,26 +32,22 @@ export class SidenavComponent{
 
   constructor(private router: Router){}
 
+
   toggleSidenav(): void {
     this.isOpen = !this.isOpen;
   }
 
-  navigateTo(navItem: NavItem):void {
-    if(navItem.isSelected || navItem.isSelected === undefined){
+  navigateTo(navItem: NavItem): void {
+    if (navItem.isSelected || !navItem.route) {
       return;
     }
-
-    for (let item of this.navItems) {      
-      if(item.isSelected){
-        item.isSelected = false;
-        break;
-      }
-    }
-
+  
+    this.navItems.forEach(item => item.isSelected = false);
+  
     navItem.isSelected = true;
+  
     this.router.navigate([navItem.route]);
   }
-
   onListItemEnter(index: number):void{
     this.hoveredIndex = index;
   }

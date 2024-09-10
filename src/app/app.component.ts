@@ -25,7 +25,7 @@ export class AppComponent {
     { icon: "settings",    label: "Settings",        route: 'settings',        isSelected: false},
     { icon: "settings",    label: "Settings",        route: 'settings',        isSelected: false},
     { icon: "settings",    label: "Settings",        route: 'settings',        isSelected: false},
-    { icon: "settings",    label: "Settings",        route: 'settings',        isSelected: false},
+    { icon: "settings",    label: "Settings",        route: 'settings'},
   ];
 
   handleOpenDrawer(event: any){
