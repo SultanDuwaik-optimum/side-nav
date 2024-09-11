@@ -13,19 +13,16 @@ import { NavItem } from './layouts/sidenav/types';
 export class AppComponent {
   title = 'sidenav';
   isDrawerOpen: boolean = false;
-
+  
   navItems: NavItem[] = [
-    { icon: "dashboard",   label: "Dashboard",       route: 'dashboard',       isSelected: false},
-    { icon: "rules",       label: "Rules Engine",    route: 'rules-engine',    isSelected: false},
-    { icon: "account",     label: "Accounts",        route: 'accounts',        isSelected: false},
-    { icon: "dollar-sign", label: "Billing",         route: 'billing',         isSelected: false},
-    { icon: "management",  label: "User Management", route: 'user-management', isSelected: true },
-    { icon: "settings",    label: "Settings",        route: 'settings',        isSelected: false},
-    { icon: "settings",    label: "Settings",        route: 'settings',        isSelected: false},
-    { icon: "settings",    label: "Settings",        route: 'settings',        isSelected: false},
-    { icon: "settings",    label: "Settings",        route: 'settings',        isSelected: false},
-    { icon: "settings",    label: "Settings",        route: 'settings',        isSelected: false},
-    { icon: "settings",    label: "Settings",        route: 'settings'},
+    { icon: "dashboard.svg",   label: "Dashboard",       route: 'dashboard',       },
+    { icon: "rules.svg",       label: "Rules Engine",    route: 'rules-engine',    },
+    { icon: "account.svg",     label: "Accounts",        route: 'accounts',        },
+    { icon: "dollar-sign.svg", label: "Billing",         route: 'billing',         },
+    { icon: "management.svg",  label: "User Management", route: 'user-management', },
+    { icon: "settings.svg",    label: "Settings",        route: 'settings',        },
+
+
   ];
 
   handleOpenDrawer(event: any){

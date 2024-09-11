@@ -1,302 +1,170 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { SidenavComponent } from './sidenav.component';
-import { NavItem } from './types';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { SidenavService } from './sidenav.service';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule } from '@angular/common';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations'; 
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NavItem } from './types';
 
 describe('SidenavComponent', () => {
   let component: SidenavComponent;
   let fixture: ComponentFixture<SidenavComponent>;
-  let router: Router;
+  let sidenavService: jest.Mocked<SidenavService>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        MatSidenavModule,
-        MatButtonModule,
-        CommonModule,
-        RouterTestingModule,
-        SidenavComponent,
-        BrowserAnimationsModule
-      ],
-      providers: [Router]
-    }).compileComponents();
+  beforeEach(waitForAsync(() => {
+    const sidenavServiceMock = {
+      navigateTo: jest.fn(),
+      navItems: []
+    };
 
-    fixture = TestBed.createComponent(SidenavComponent);
-    component = fixture.componentInstance;
-    router = TestBed.inject(Router);
-    fixture.detectChanges();
-  });
+    TestBed.configureTestingModule({
+      imports: [MatSidenavModule, CommonModule, MatButtonModule, BrowserAnimationsModule],
+      declarations: [SidenavComponent],
+      providers: [
+        { provide: SidenavService, useValue: sidenavServiceMock }
+      ]
+    }).compileComponents().then(() => {
+      fixture = TestBed.createComponent(SidenavComponent);
+      component = fixture.componentInstance;
+      sidenavService = TestBed.inject(SidenavService) as jest.Mocked<SidenavService>;
+
+      // Set default properties for the component
+      component.navItems = [
+        { icon: 'account.svg', label: 'Home', route: '/home' },
+        { icon: 'settings.svg', label: 'Settings', route: '/settings' }
+      ];
+      component.iconSize = '27px';
+      component.hoverColor = '#81D0A6';
+      component.fontColor = '#FFFFFF';
+      component.drawerColor = '#000000';
+      component.drawerHeight = '100vh';
+      fixture.detectChanges();
+    });
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
   it('should toggle sidenav state', () => {
-    component.isOpen = false;
+    component.isOpen = true;
     component.toggleSidenav();
-    expect(component.isOpen).toBeTrue();
-    
+    expect(component.isOpen).toBe(false);
+
     component.toggleSidenav();
-    expect(component.isOpen).toBeFalse();
+    expect(component.isOpen).toBe(true);
   });
 
-  it('should do nothing if navItem is already selected', () => {
-    const navItems: NavItem[] = [
-      { label: 'Item 1', route: '/item1', icon: 'icon1', isSelected: true },
-      { label: 'Item 2', route: '/item2', icon: 'icon2', isSelected: false }
-    ];
-
-    component.navItems = navItems;
-    const navItem = navItems[0]; 
-
-    spyOn(router, 'navigate');
+  it('should call sidenavService.navigateTo() on navigateTo()', () => {
+    const navItem = { icon: 'account.svg', label: 'Home', route: '/home' };
     component.navigateTo(navItem);
-
-    expect(navItem.isSelected).toBeTrue(); 
-    expect(router.navigate).not.toHaveBeenCalled(); 
+    expect(sidenavService.navigateTo).toHaveBeenCalledWith(navItem);
   });
 
-  it('should do nothing if navItem isSelected is undefined', () => {
-    const navItems: NavItem[] = [
-      { label: 'Item 1', route: '/item1', icon: 'icon1' }, 
-      { label: 'Item 2', route: '/item2', icon: 'icon2', isSelected: false }
-    ];
-  
-    component.navItems = navItems;
-    const navItemWithUndefinedIsSelected = navItems[0];
-  
-    const routerSpy = spyOn(component['router'], 'navigate');
-  
-    component.navigateTo(navItemWithUndefinedIsSelected);
-  
-    expect(navItemWithUndefinedIsSelected.isSelected).toBeTrue();
-  
-    expect(routerSpy).toHaveBeenCalledWith([navItemWithUndefinedIsSelected.route]);
-  });
-  
-
-  it('should navigate to the selected item and deselect the previous one', () => {
-    const navItems: NavItem[] = [
-      { label: 'Item 1', route: '/item1', icon: 'icon1', isSelected: true },
-      { label: 'Item 2', route: '/item2', icon: 'icon2', isSelected: false }
-    ];
-
-    component.navItems = navItems;
-    const navItem = navItems[1]; 
-
-    spyOn(router, 'navigate');
-    component.navigateTo(navItem);
-
-    expect(navItem.isSelected).toBeTrue(); 
-    expect(navItems[0].isSelected).toBeFalse(); 
-    expect(router.navigate).toHaveBeenCalledWith([navItem.route]);
+  it('should update hoveredNavItem on onListItemEnter()', () => {
+    const navItem = { icon: 'settings.svg', label: 'Settings', route: '/settings' };
+    component.onListItemEnter(navItem);
+    expect(component.hoveredNavItem).toEqual(navItem);
   });
 
-  it('should do nothing if navItem has no route', () => {
-    const navItems: NavItem[] = [
-      { label: 'Item 1', icon: 'icon1', isSelected: true },  // No route
-      { label: 'Item 2', route: '/item2', icon: 'icon2', isSelected: false }
-    ];
-  
-    component.navItems = navItems;
-    const navItemWithoutRoute = navItems[0];
-  
-    const routerSpy = spyOn(component['router'], 'navigate');
-  
-    component.navigateTo(navItemWithoutRoute);
-  
-    expect(routerSpy).not.toHaveBeenCalled();
-  
-    expect(navItemWithoutRoute.isSelected).toBeTrue();
-  });
-  
-  it('should navigate to the item with route and deselect the previous one', () => {
-    const navItems: NavItem[] = [
-      { label: 'Item 1', route: '/item1', icon: 'icon1', isSelected: true },
-      { label: 'Item 2', route: '/item2', icon: 'icon2', isSelected: false },
-      { label: 'Item 3', route: '/item3', icon: 'icon3', isSelected: false }
-    ];
-    
-    component.navItems = navItems;
-    const navItemToSelect = navItems[2]; 
-  
-    const routerSpy = spyOn(component['router'], 'navigate');
-  
-    component.navigateTo(navItemToSelect);
-    
-    expect(navItemToSelect.isSelected).toBeTrue();
-  
-    expect(navItems[0].isSelected).toBeFalse();
-    
-    expect(routerSpy).toHaveBeenCalledWith([navItemToSelect.route]);
-  });
-    
-  it('should update hoveredIndex on mouse enter and leave', () => {
-    component.onListItemEnter(1);
-    expect(component.hoveredIndex).toBe(1);
-
+  it('should clear hoveredNavItem on onListItemLeave()', () => {
+    component.hoveredNavItem = { icon: 'settings.svg', label: 'Settings', route: '/settings' };
     component.onListItemLeave();
-    expect(component.hoveredIndex).toBeNull();
+    expect(component.hoveredNavItem).toBeNull();
   });
 
-  it('should return correct styles for sidenav content', () => {
+  it('should return correct sidenav content style based on isOpen', () => {
     component.isOpen = true;
-    component.expandedWidth = '300px';
-    component.iconSize = '30px';
-    expect(component.sidenavContentStyle()).toEqual({
-      'margin-left': '300px'
-    });
+    expect(component.sidenavContentStyle()).toEqual({ 'margin-left': component.expandedWidth });
 
     component.isOpen = false;
-    expect(component.sidenavContentStyle()).toEqual({
-      'margin-left': 'calc(30px + 40px)'
-    });
+    expect(component.sidenavContentStyle()).toEqual({ 'margin-left': `calc(${component.iconSize} + 40px)` });
   });
 
-  it('should return correct styles for drawer container', () => {
-    component.drawerHeight = '80vh';
-    expect(component.drawerContainerStyle()).toEqual({
-      'height': '80vh'
-    });
+  it('should return correct drawer container style', () => {
+    expect(component.drawerContainerStyle()).toEqual({ height: component.drawerHeight });
   });
 
-  it('should return correct styles for drawer', () => {
+  it('should return correct drawer style based on isOpen', () => {
     component.isOpen = true;
-    component.expandedWidth = '300px';
-    component.drawerColor = '#123456';
     expect(component.drawerStyle()).toEqual({
-      'width': '300px',
-      'background-color': '#123456'
+      width: component.expandedWidth,
+      'background-color': component.drawerColor
     });
 
     component.isOpen = false;
     expect(component.drawerStyle()).toEqual({
-      'width': 'calc(27px + 40px)',
-      'background-color': '#123456'
+      width: `calc(${component.iconSize} + 40px)`,
+      'background-color': component.drawerColor
     });
   });
 
-  it('should return correct styles for list', () => {
-    component.navItems = Array(9).fill({} as NavItem);
-    expect(component.listStyle()).toEqual({
-      'height': '80%'
+  it('should return correct list style based on navItems length', () => {
+    // Set navItems length to 5
+    component.sidenavService.navItems = Array(5).fill({ icon: 'icon.svg', label: 'Item' });
+    expect(component.listStyle()).toEqual({ height: '45%' });
+
+    // Set navItems length to 2
+    component.sidenavService.navItems = Array(2).fill({ icon: 'icon.svg', label: 'Item' });
+    expect(component.listStyle()).toEqual({ height: '18%' });
+  });
+
+  it('should return correct icon style based on selection and hover state', () => {
+    const navItem = { icon: 'account.svg', label: 'Home', route: '/home' };
+    
+    // When the item is selected
+    component.sidenavService.selectedNavItem = navItem;
+    component.hoveredNavItem = navItem;
+    expect(component.iconStyle(navItem)).toEqual({
+      'background-color': component.hoverColor,
+      'mask-image': `url(assets/icons/${navItem.icon})`,
+      height: component.iconSize,
+      width: component.iconSize
     });
 
-    component.navItems = Array(5).fill({} as NavItem);
-    expect(component.listStyle()).toEqual({
-      'height': '40%'
+    // When the item is not hovered
+    component.hoveredNavItem = null;
+    expect(component.iconStyle(navItem)).toEqual({
+      'background-color': component.fontColor,
+      'mask-image': `url(assets/icons/${navItem.icon})`,
+      height: component.iconSize,
+      width: component.iconSize
     });
   });
 
-  it('should return correct styles for icon', () => {
-    component.hoverColor = '#FF0000';
-    component.fontColor = '#00FF00';
-    const navItems: NavItem[] = [{ label: 'Item 1', icon: 'icon1', isSelected: true }];
-    component.navItems = navItems;
+  it('should return correct label style based on selection and hover state', () => {
+    const navItem1: NavItem = { icon: 'account.svg', label: 'Home1', route: '/home1' };
+    const navItem2: NavItem = { icon: 'account.svg', label: 'Home2', route: '/home2' };
+    const navItem3: NavItem = { icon: 'account.svg', label: 'Home3', route: '/home3' };
 
-    expect(component.iconStyle(0)).toEqual({
-      'background-color': '#FF0000',
-      'mask-image': 'url(assets/icons/icon1.svg)',
-      'height': '27px',
-      'width': '27px'
-    });
+    component.sidenavService.navItems = [navItem1, navItem2, navItem3];
+
+    // When the item is selected and hovered
+    component.sidenavService.selectedNavItem = navItem1;
+    component.hoveredNavItem = navItem1;
+    expect(component.labelStyle(navItem1)).toEqual({ color: component.hoverColor });
+
+    // When the item is hovered but not selected
+    component.hoveredNavItem = navItem2;
+    expect(component.labelStyle(navItem1)).toEqual({ color: component.hoverColor });
+
+    // When the item is not hovered and not selected
+    expect(component.labelStyle(navItem2)).toEqual({ color: component.fontColor });
+    expect(component.labelStyle(navItem3)).toEqual({ color: component.fontColor });
   });
 
-  it('should return correct styles for label', () => {
-    component.hoverColor = '#FF0000';
-    component.fontColor = '#00FF00';
+  it('should set the navItems and update selectedNavItem on ngOnInit', () => {
     const navItems: NavItem[] = [
-      { label: 'Item 1', icon: 'icon1', isSelected: true },
-      { label: 'Item 2', icon: 'icon2', isSelected: false }
-    ];
-    component.navItems = navItems;
-
-    expect(component.labelStyle(0)).toEqual({
-      'color': '#FF0000'
-    });
-    expect(component.labelStyle(1)).toEqual({
-      'color': '#00FF00'
-    });
-  });
-
-  it('should return hoverColor for selected item', () => {
-    const navItems: NavItem[] = [
-      { label: 'Item 1', icon: 'icon1', isSelected: true },  
-      { label: 'Item 2', icon: 'icon2', isSelected: false }, 
-    ];
-    
-    component.navItems = navItems;
-    const index = 0; 
-    
-    const iconStyle = component.iconStyle(index);
-
-    expect(iconStyle['background-color']).toBe(component.hoverColor); 
-    expect(iconStyle['mask-image']).toBe('url(assets/icons/icon1.svg)'); 
-    expect(iconStyle['height']).toBe(component.iconSize); 
-    expect(iconStyle['width']).toBe(component.iconSize);  
-  });
-
-  it('should return hoverColor for hovered item', () => {
-    const navItems: NavItem[] = [
-      { label: 'Item 1', icon: 'icon1', isSelected: false }, 
-      { label: 'Item 2', icon: 'icon2', isSelected: false }, 
-    ];
-    
-    component.navItems = navItems;
-    component.hoveredIndex = 1;
-
-    const index = 1; 
-    
-    const iconStyle = component.iconStyle(index);
-
-    expect(iconStyle['background-color']).toBe(component.hoverColor); 
-    expect(iconStyle['mask-image']).toBe('url(assets/icons/icon2.svg)'); 
-    expect(iconStyle['height']).toBe(component.iconSize); 
-    expect(iconStyle['width']).toBe(component.iconSize);  
-  });
-
-  it('should return fontColor for unselected and unhovered item', () => {
-    const navItems: NavItem[] = [
-      { label: 'Item 1', icon: 'icon1', isSelected: false }, 
-      { label: 'Item 2', icon: 'icon2', isSelected: false }, 
-    ];
-    
-    component.navItems = navItems;
-    component.hoveredIndex = null; 
-
-    const index = 0; 
-    
-    const iconStyle = component.iconStyle(index);
-
-    expect(iconStyle['background-color']).toBe(component.fontColor); 
-    expect(iconStyle['mask-image']).toBe('url(assets/icons/icon1.svg)'); 
-    expect(iconStyle['height']).toBe(component.iconSize);
-    expect(iconStyle['width']).toBe(component.iconSize);  
-  });
-
-  it('should return hoverColor for both hovered and selected item', () => {
-    const navItems: NavItem[] = [
-      { label: 'Item 1', icon: 'icon1', isSelected: true },  
-      { label: 'Item 2', icon: 'icon2', isSelected: false }, 
+      { icon: 'icon1.svg', label: 'Item 1', route: '/item1' },
+      { icon: 'icon2.svg', label: 'Item 2', route: '/item2' }
     ];
 
     component.navItems = navItems;
-    component.hoveredIndex = 0; 
-
-    const index = 0; 
+    component.ngOnInit();
     
-    const iconStyle = component.iconStyle(index);
-
-    expect(iconStyle['background-color']).toBe(component.hoverColor);
-    expect(iconStyle['mask-image']).toBe('url(assets/icons/icon1.svg)'); 
-    expect(iconStyle['height']).toBe(component.iconSize); 
-    expect(iconStyle['width']).toBe(component.iconSize);  
+    expect(sidenavService.navItems).toEqual(navItems);
+    expect(component.hoveredNavItem).toEqual(navItems[0]);
   });
 
 });

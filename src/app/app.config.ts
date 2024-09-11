@@ -8,7 +8,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    // provideAnimations(),
     importProvidersFrom([NoopAnimationsModule]),
     importProvidersFrom([BrowserAnimationsModule])
   ],

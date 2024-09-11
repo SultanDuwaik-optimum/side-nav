@@ -1,25 +1,23 @@
-<mat-drawer-container class="container" [ngStyle]="drawerContainerStyle()" >
-
+<mat-drawer-container class="container" [ngStyle]="drawerContainerStyle()">
   <mat-drawer class="sidenav" mode="side" opened="true" [ngStyle]="drawerStyle()">
-          <ul class="side-nav-items" [ngStyle]="listStyle()">
+    <ul class="sidenav-items" [ngStyle]="listStyle()">
+      
+      <li *ngFor="let item of sidenavService.navItems"
+          (click)="navigateTo(item)"
+          (mouseenter)="onListItemEnter(item)"
+          (mouseleave)="onListItemLeave()"
+          class="sidenav-item">
 
-              <li *ngFor="let item of navItems; let index = index" 
-              [ngClass]="{'selected': item.isSelected}"
-              (click)="navigateTo(item)"
-              (mouseenter)="onListItemEnter(index)"
-              (mouseleave)="onListItemLeave()"
-              >
+        <div [ngStyle]="iconStyle(item)" class="sidenav-icon"></div>
+        <span [ngStyle]="labelStyle(item)" class="sidenav-label">
+          {{item.label}}
+          </span>
 
-                <div [ngStyle]="iconStyle(index)" class="icon"></div>
-                <span [ngStyle]="labelStyle(index)">{{item.label}}</span>
-              
-              </li>
-
-          </ul>
+      </li>
+    </ul>
   </mat-drawer>
 
   <mat-drawer-content [ngStyle]="sidenavContentStyle()">
     <ng-content></ng-content>
   </mat-drawer-content>
-
 </mat-drawer-container>
